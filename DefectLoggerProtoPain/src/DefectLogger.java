@@ -27,7 +27,7 @@ public class DefectLogger extends Application {
     
     public void start(Stage primaryStage) {
     	
-        primaryStage.setTitle("Risk-Reduction Prototype");
+        primaryStage.setTitle("DefectLogger Prototype");
         Button btn = new Button();
         btn.setText("SHARE");
         btn.setOnAction(new EventHandler<>() {
