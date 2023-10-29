@@ -116,6 +116,7 @@ public class DefectLogger extends Application {
     private Button statusButton = new Button("Toggle Status");
     private Button saveButton = new Button("Save Data As Defect Log");
     private Button loadButton = new Button("Load Data");
+    private Button deleteButton = new Button("Delete Current Defect");
     
     //Define core data that the defect log stores
     private String project = "Business Project";
@@ -380,6 +381,50 @@ public class DefectLogger extends Application {
         });
         
         //Action event for save data button
+        EventHandler<ActionEvent> deleteEvent = new EventHandler<ActionEvent>() { 
+            public void handle(ActionEvent e) 
+            {
+            	//Check if current defect selected is valid
+            	if (defectCombo.getValue() != null)
+            	{
+        			int index = defectCombo.getSelectionModel().getSelectedIndex();
+            		if (projectCombo.getValue().equals("Business Project"))
+            		{
+            			projectDefectsBusinessNames.remove(name);
+            			projectDefectsBusiness.remove(projectDefectsBusiness.get(index));
+            			defectNumBusiness--;
+            			defectAmount.setText("There are " + Integer.toString(defectNumBusiness) + " defects in this project.");
+            		}
+            		else
+            		{
+            			projectDefectsDevelopmentNames.remove(name);
+            			projectDefectsDevelopment.remove(projectDefectsBusiness.get(index));
+            			defectNumDevelopment--;
+            			defectAmount.setText("There are " + Integer.toString(defectNumDevelopment) + " defects in this project.");
+            		}
+            		
+            		//Reset current values
+            		name = "";
+            		defectCombo.setValue("");
+            		defectNameText.setText("");
+            		symptoms = "";
+            		symptomsText.setText("");
+            		stepInject = "";
+            		stepInjectCombo.setValue("");
+            		stepRemove = "";
+            		stepRemoveCombo.setValue("");
+            		defectCategory = "";
+            		defectCategoryCombo.setValue("");
+            		fixDefect = "";
+            		fixDefectCombo.setValue("");
+            	}
+            		
+            	
+            }
+        };
+        deleteButton.setOnAction(deleteEvent);
+        
+        //Action event for save data button
         EventHandler<ActionEvent> saveEvent = new EventHandler<ActionEvent>() { 
             public void handle(ActionEvent e) 
             {
@@ -573,7 +618,7 @@ public class DefectLogger extends Application {
         primaryStage.show();
         
         //Add children to root
-        root.getChildren().addAll(defectConsoleLabel,projectLabel,projectCombo,defectAmount,defectLabel,defectCombo,attributeLabel,statusLabel,statusButton,defectName,defectNameText,symptomsLabel,symptomsText,stepInjectLabel,stepInjectCombo,stepRemoveLabel,stepRemoveCombo,defectCategoryLabel,defectCategoryCombo,fixDefectLabel,fixDefectCombo,newDefectButton,updateDefectButton,saveButton,loadButton);
+        root.getChildren().addAll(defectConsoleLabel,projectLabel,projectCombo,defectAmount,defectLabel,defectCombo,attributeLabel,statusLabel,statusButton,defectName,defectNameText,symptomsLabel,symptomsText,stepInjectLabel,stepInjectCombo,stepRemoveLabel,stepRemoveCombo,defectCategoryLabel,defectCategoryCombo,fixDefectLabel,fixDefectCombo,newDefectButton,updateDefectButton,deleteButton,saveButton,loadButton);
     }
 
 }
