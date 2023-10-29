@@ -1,0 +1,43 @@
+$$BUSINESS PROJECT$$
+
+Sym1
+false
+Test1
+Planning
+Planning
+20 Syntax
+
+
+Sym2
+false
+Test2
+Verifying
+Outlining
+30 Build, Package
+
+
+Sym3
+true
+Test3
+Information Gathering
+Coach Meeting
+40 Assignment
+Sym2
+
+Sym4
+true
+Test4
+Finalizing
+Finalizing
+80 Function
+Sym1
+$$DEVELOPMENT PROJECT$$
+
+Dev1
+true
+Dev4
+Information Gathering
+Coach Meeting
+40 Assignment
+
+$$END READ$$

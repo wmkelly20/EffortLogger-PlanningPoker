@@ -1,7 +1,6 @@
-//package inputPrototype;
 
-
-
+//Risk-Reduction Prototype: Defect Logs
+//Author: Dylan Kingsbury
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -10,32 +9,23 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.scene.Group;
-import javafx.scene.Scene;
+
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
 
  
 public class DefectLogger extends Application {
@@ -63,6 +53,7 @@ public class DefectLogger extends Application {
 			this.fixDefect = fixDefect;
 		}
 		
+		//List of Setters for defect class
 		public void setName(String name) {
 			this.name=name;}
 		
@@ -83,6 +74,23 @@ public class DefectLogger extends Application {
 		
 		public void setFixDefect(String fixDefect) {
 			this.fixDefect = fixDefect;}
+		
+		//List of getters for defect class
+		public String getName() {
+			return name;}
+		public boolean getStatus() {
+			return status;}
+		public String getSymptoms() {
+			return symptoms;}
+		public String getStepInject() {
+			return stepInject;}
+		public String getStepRemove() {
+			return stepRemove;}
+		public String getDefectCategory() {
+			return defectCategory;}
+		public String getFixDefect() {
+			return fixDefect;}
+		
 		
 		
 	}
@@ -106,6 +114,8 @@ public class DefectLogger extends Application {
     private Button newDefectButton = new Button("Create New Defect");
     private Button updateDefectButton = new Button("Update Current Defect");
     private Button statusButton = new Button("Toggle Status");
+    private Button saveButton = new Button("Save Data As Defect Log");
+    private Button loadButton = new Button("Load Data");
     
     //Define core data that the defect log stores
     private String project = "Business Project";
@@ -151,6 +161,7 @@ public class DefectLogger extends Application {
         	defectAmount = new Label("There are " + Integer.toString(defectNumDevelopment) + " defects in this project.");
         
         //Listen for changes within the combo box and update the project value
+        //We use combo boxes to limit the amount of inputs the user can input as to avoid incorrect inputs
         projectCombo.valueProperty().addListener((observable, oldValue, newValue) -> {
             project = newValue;
             if (project == "Business Project")
@@ -166,8 +177,6 @@ public class DefectLogger extends Application {
             	defectAmount.setText("There are " + Integer.toString(defectNumDevelopment) + " defects in this project.");
             }
             
-            
-            //Here we should also load in project defect data from database
         });
         
 
@@ -215,6 +224,9 @@ public class DefectLogger extends Application {
         
         Label defectName = new Label("Defect Name:");
         TextField defectNameText = new TextField();
+        //Listener for the defectNameBox. When the string within the field has changed
+        //It will update the name variable within the name variable which is later stored in observable list
+        //Input must be string
         defectNameText.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -229,7 +241,7 @@ public class DefectLogger extends Application {
         	statusLabel.setText("Current Status: CLOSED");
         else
         	statusLabel.setText("Current Status: OPEN");
-      //Action event for toggle status button
+        //Action event for toggle status button
         EventHandler<ActionEvent> toggleStatusEvent = new EventHandler<ActionEvent>() { 
             public void handle(ActionEvent e) 
             {              
@@ -259,6 +271,7 @@ public class DefectLogger extends Application {
         
         Label symptomsLabel = new Label("Defect Symptoms or Cause/Resolution");
         TextField symptomsText = new TextField();
+        //This is the textfield for the symptoms. It works functionally the same as the name textfield
         symptomsText.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -309,7 +322,7 @@ public class DefectLogger extends Application {
         EventHandler<ActionEvent> newDefectEvent = new EventHandler<ActionEvent>() { 
             public void handle(ActionEvent e) 
             {              
-                Defect newDefect = new Defect(project,name,false,symptoms,stepInject,stepRemove,defectCategory,null);
+                Defect newDefect = new Defect(project,name,status,symptoms,stepInject,stepRemove,defectCategory,fixDefect);
                 //Add defect to corresponding defect list
                 if (project == "Business Project")
                 {
@@ -366,7 +379,192 @@ public class DefectLogger extends Application {
       
         });
         
-
+        //Action event for save data button
+        EventHandler<ActionEvent> saveEvent = new EventHandler<ActionEvent>() { 
+            public void handle(ActionEvent e) 
+            {
+            	try 
+            	{
+		        	//First create the text file
+		    	    File defectFile = new File("defectLog.txt");
+		    	    defectFile.createNewFile();
+		    	    
+		    	    //Next write data onto text file
+	    	        FileWriter myWriter = new FileWriter("defectLog.txt");
+	    	        
+	    	        //Check if Business project is null or not
+	    	        if (!projectDefectsBusiness.isEmpty())
+	    	        {
+		    	        
+		    	        //Print start of business projects
+		    	        myWriter.write("$$BUSINESS PROJECT$$\n");
+		    	        
+		    	        //Iterate through each defect within business project list
+		    	        projectDefectsBusiness.forEach((defect) -> { 
+		    	        	try {
+								myWriter.write("\n" +  defect.getName() + "\n" + 
+												defect.getStatus() + "\n" +
+												defect.getSymptoms() + "\n" +
+												defect.getStepInject() + "\n" +
+												defect.getStepRemove() + "\n" +
+												defect.getDefectCategory() + "\n" +
+												defect.getFixDefect() + "\n");
+								
+							} catch (IOException err) {
+								err.printStackTrace();
+							}
+		    	        });
+	    	        }
+	    	        
+	    	        //Check if Development project is null or not
+	    	        if (!projectDefectsDevelopment.isEmpty())
+	    	        {
+	    	        
+		    	        //Print start of develop project list
+		    	        myWriter.write("$$DEVELOPMENT PROJECT$$\n");
+		    	        
+		    	        //Iterate through each defect within business project list
+		    	        projectDefectsDevelopment.forEach((defect) -> { 
+		    	        	try {
+		    	        		myWriter.write("\n" + defect.getName() + "\n" + 
+				    	        				defect.getStatus() + "\n" +
+				    	        				defect.getSymptoms() + "\n" +
+												defect.getStepInject() + "\n" +
+												defect.getStepRemove() + "\n" +
+												defect.getDefectCategory() + "\n" +
+												defect.getFixDefect() + "\n");
+							} catch (IOException err) {
+								err.printStackTrace();
+							}
+		    	        });
+	    	        }
+	    	        
+	    	        //Print end read line
+	    	        myWriter.write("$$END READ$$\n");
+	    	        
+	    	        
+	    	        
+	    	        
+	    	        myWriter.close();
+        	    } 
+            	catch (IOException err) 
+            	{
+            		err.printStackTrace();
+            	}
+            	
+            }
+        }; 
+        saveButton.setOnAction(saveEvent);
+        
+        //Action event for load data button
+        EventHandler<ActionEvent> loadEvent = new EventHandler<ActionEvent>() { 
+            public void handle(ActionEvent e) 
+            {
+            	
+            	try {
+        	      File defectFile = new File("defectLog.txt");
+        	      Scanner defectReader = new Scanner(defectFile);
+        	      String projectType = defectReader.nextLine();
+        	      projectType = defectReader.nextLine();
+        	      
+        	      //Set which project we are reading to
+        	      String currentProject = "Business";
+        	      
+        	      while (!projectType.equals("$$END READ$$")) 
+        	      {
+        	    	//Read in and set all of defect parameters
+        	    	String loadedName = defectReader.nextLine();
+        	    	String loadedStatus = defectReader.nextLine();
+        	    	boolean trueStatus;
+        	    	if (loadedStatus.equals("false"))
+        	    		trueStatus = false;
+        	    	else
+        	    		trueStatus = true;
+        	    	String loadedSymptoms = defectReader.nextLine();
+        	    	String loadedStepInject = defectReader.nextLine();
+        	    	String loadedStepRemove = defectReader.nextLine();
+        	    	String loadedDefectCategory = defectReader.nextLine();
+        	    	String loadedDefectFix = defectReader.nextLine();
+        	    	  
+        	    	//Determine which project we're reading to
+        	    	if (currentProject.equals("Business"))
+        	    	{
+            	    	//Create new defect object
+	        	    	Defect newDefect = new Defect("Business Project",loadedName,trueStatus,loadedSymptoms,loadedStepInject,loadedStepRemove,loadedDefectCategory,loadedDefectFix);
+	        	    	//Add these values to the system
+	        	    	defectNumBusiness++;
+	                	projectDefectsBusiness.addAll(newDefect);
+	                	projectDefectsBusinessNames.addAll(loadedName);
+	                	defectAmount.setText("There are " + Integer.toString(defectNumBusiness) + " defects in this project.");
+        	    	
+	                	//Update project combo
+	        	    	projectCombo.setValue("Business Project");
+	        	    	defectCombo.setItems(projectDefectsBusinessNames);
+	                	fixDefectCombo.setItems(projectDefectsBusinessNames);
+        	    	
+        	    	}
+        	    	else
+        	    	{
+        	    		//Create new defect object
+	        	    	Defect newDefect = new Defect("Development Project",loadedName,trueStatus,loadedSymptoms,loadedStepInject,loadedStepRemove,loadedDefectCategory,loadedDefectFix);
+	        	    	//Add these values to the system
+	        	    	defectNumDevelopment++;
+	                	projectDefectsDevelopment.addAll(newDefect);
+	                	projectDefectsDevelopmentNames.addAll(loadedName);
+	                	defectAmount.setText("There are " + Integer.toString(defectNumDevelopment) + " defects in this project.");
+        	    	
+		        	       
+	        	    	//Update project combo
+	        	    	defectCombo.setItems(projectDefectsDevelopmentNames);
+	                	fixDefectCombo.setItems(projectDefectsDevelopmentNames);
+	        	    	projectCombo.setValue("Development Project");
+        	    	}
+                	
+                	//Set these values into the current boxes and fields
+                	defectCombo.setValue(loadedName);
+                	name = loadedName;
+                	defectNameText.setText(loadedName);
+                	symptoms = loadedSymptoms;
+                	symptomsText.setText(loadedSymptoms);
+                	
+                	status = trueStatus;
+                	if (trueStatus)
+                		statusLabel.setText("Current Status: OPEN");
+                	else
+                		statusLabel.setText("Current Status: CLOSED");
+                	stepInjectCombo.setValue(loadedStepInject);
+                	stepInject = loadedStepInject;
+                	stepRemoveCombo.setValue(loadedStepRemove);
+                	stepRemove = loadedStepRemove;
+                	defectCategoryCombo.setValue(loadedDefectCategory);
+                	defectCategory = loadedDefectCategory;
+                	fixDefectCombo.setValue(loadedDefectFix);
+                	fixDefect = loadedDefectFix;
+        	    	
+                	projectType = defectReader.nextLine();
+                	if (projectType.equals("$$DEVELOPMENT PROJECT$$"))
+                	{
+                		currentProject = "Development";
+                		projectType = defectReader.nextLine();
+                	}
+                	
+                	
+                	
+        	        
+        	      }
+        	      defectReader.close();
+        	    } 
+            	catch (FileNotFoundException err) {
+        	      err.printStackTrace();
+        	    }
+            }
+        };
+        loadButton.setOnAction(loadEvent);
+        
+        
+        
+        
+        //Create the vbox, it's settings and add all previously created elements to scene.
         VBox root = new VBox(5);
         root.setPadding(new Insets(10,10,10,10));
         root.setAlignment(Pos.TOP_CENTER);
@@ -375,11 +573,7 @@ public class DefectLogger extends Application {
         primaryStage.show();
         
         //Add children to root
-        root.getChildren().addAll(defectConsoleLabel,projectLabel,projectCombo,defectAmount,defectLabel,defectCombo,attributeLabel,statusLabel,statusButton,defectName,defectNameText,symptomsLabel,symptomsText,newDefectButton,updateDefectButton,stepInjectLabel,stepInjectCombo,stepRemoveLabel,stepRemoveCombo,defectCategoryLabel,defectCategoryCombo,fixDefectLabel,fixDefectCombo);
+        root.getChildren().addAll(defectConsoleLabel,projectLabel,projectCombo,defectAmount,defectLabel,defectCombo,attributeLabel,statusLabel,statusButton,defectName,defectNameText,symptomsLabel,symptomsText,stepInjectLabel,stepInjectCombo,stepRemoveLabel,stepRemoveCombo,defectCategoryLabel,defectCategoryCombo,fixDefectLabel,fixDefectCombo,newDefectButton,updateDefectButton,saveButton,loadButton);
     }
-    
-    //Other class methods
-    public String getProjectComboValue() {
-        return project;
-    }
+
 }
