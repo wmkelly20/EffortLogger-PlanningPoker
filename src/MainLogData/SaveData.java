@@ -14,7 +14,7 @@ public class SaveData {
 	private String plan;
 	private String project;
 	
-	public SaveData (int logNumber, String date, double startTime, double endTime, long deltaTime, String lifeCycleStep, String effortCategory, String plan, String project) {
+	public SaveData (int logNumber, String date, double startTime, double endTime, double deltaTime, String lifeCycleStep, String effortCategory, String plan, String project) {
 		this.logNumber = logNumber;
 		this.date = date;
 		this.startTime = startTime;
@@ -93,6 +93,10 @@ public class SaveData {
 
 	public void setPlan(String plan) {
 		this.plan = plan;
+	}
+	
+	public String getProject() {
+		return project;
 	}
 	
 	

@@ -22,7 +22,7 @@ public class MainLogData extends Application{
 	 private String date = "Date";
 	 private double startTime = 0; //need to talk to caleb
 	 private double endTime = 0; //need to talk to caleb
-	 private long deltaTime = 0; //need to talk to caleb
+	 private double deltaTime = 0; //need to talk to caleb
 	 
 	 public static void main(String[] args) {
 	        launch(args);
@@ -293,6 +293,83 @@ public class MainLogData extends Application{
 					e.printStackTrace();
 				}
 	        	
+	        	
+	        });
+	        
+	        updateLog.setOnAction(event ->{
+	        	for(SaveData element : LogList) {
+	        		if(element.getLogNumber() == Integer.parseInt(numberToChangeText.getText())) {
+	        			element.setDate(dateText.getText());
+	        			element.setStartTime(Double.parseDouble(startTimeText.getText()));
+	        			element.setEndTime(Double.parseDouble(stopTimeText.getText()));
+	        			element.setDeltaTime(element.getEndTime()- element.getStartTime());
+	        			element.setLifeCycleStep(lifeCycEditText.getText());
+	        			element.setEffortCategory(effortCatEditText.getText());
+	        		}
+	        		
+	        		FileWriter fileWriter;
+		        	try {
+						fileWriter = new FileWriter("Logs.txt");
+						PrintWriter printWriter = new PrintWriter(fileWriter);
+		          	    //printWriter.printf("|" + logNumber + "|" + date + "|" + startTime + "|" + endTime + "|" + deltaTime + "|" + lifeCycleText.getText() + "|" + effortCatText.getText() + "|" + planText.getText() + "|");	
+						for(SaveData element2 : LogList) {
+							printWriter.print("|" + element2.getLogNumber() + "|" + element2.getDate() + "|" + element2.getStartTime() + "|" + element2.getEndTime() + "|" + element2.getDeltaTime() + "|" + element2.getLifeCycleStep() + "|" + element2.getEffortCategory() + "|" + element2.getPlan() + "|\n");
+						}
+		          	    printWriter.close();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+		        	
+		        	dateText.setText("");
+	    			startTimeText.setText("");
+	    			stopTimeText.setText("");
+	    			lifeCycEditText.setText("");
+	    			effortCatEditText.setText("");
+	    			numberToChangeText.setText("");
+	    			
+		        	
+	        	}
+	        });
+	        
+	        splitLog.setOnAction(event ->{
+	        	for(SaveData element : LogList) {
+	        		if(element.getLogNumber() == Integer.parseInt(numberToChangeText.getText())) {
+	        			SaveData newElement = new SaveData(element.getLogNumber(), element.getDate(), element.getStartTime(), element.getEndTime(), element.getDeltaTime(), element.getLifeCycleStep(), element.getEffortCategory(), element.getPlan(), element.getProject());
+	        			LogList.add(element.getLogNumber(), newElement);
+	        			break;
+	        		}
+	        	}
+	        	int i = 1;
+	        	
+	        	for(SaveData element : LogList) {
+	        		if(element.getLogNumber() != i) {
+	        			element.setLogNumber(i);
+	        			
+	        		}
+	        		i += 1;
+	        	}
+	        	
+	        	numberToChangeText.setText("");
+	        	dateText.setText("");
+    			startTimeText.setText("");
+    			stopTimeText.setText("");
+    			lifeCycEditText.setText("");
+    			effortCatEditText.setText("");
+	        	
+	        	FileWriter fileWriter;
+	        	try {
+					fileWriter = new FileWriter("Logs.txt");
+					PrintWriter printWriter = new PrintWriter(fileWriter);
+	          	    //printWriter.printf("|" + logNumber + "|" + date + "|" + startTime + "|" + endTime + "|" + deltaTime + "|" + lifeCycleText.getText() + "|" + effortCatText.getText() + "|" + planText.getText() + "|");	
+					for(SaveData element : LogList) {
+						printWriter.print("|" + element.getLogNumber() + "|" + element.getDate() + "|" + element.getStartTime() + "|" + element.getEndTime() + "|" + element.getDeltaTime() + "|" + element.getLifeCycleStep() + "|" + element.getEffortCategory() + "|" + element.getPlan() + "|\n");
+					}
+	          	    printWriter.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 	        	
 	        });
 	        // Show the stage
