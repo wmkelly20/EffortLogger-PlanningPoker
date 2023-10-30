@@ -184,6 +184,7 @@ public class EffortLoggerV2 extends Application {
     	Button effortLoggerConsoleBtn = new Button("Effort Logger Console");
     	Button defectLogConsoleBtn = new Button("Defect Log Console");
     	Button effortLogEditorBtn = new Button("Effort Log Editor");
+    	Button planningPokerBtn = new Button("Planning Poker");
     	
     	
     	effortLoggerConsoleBtn.setOnAction(mainlineEvent -> {
@@ -1257,12 +1258,138 @@ public class EffortLoggerV2 extends Application {
 	        // Show the stage
 	        primaryStage.show();
     	});
+    	//====================================================================================
+    	
+    	//WILSON CODE=========================================================================
+    	planningPokerBtn.setOnAction(mainlineEvent -> {
+    		//Label and box for naming a defect
+    		   Label attributeLabel = new Label("Define or update Current Defect attributes");
+    	        Label defectName = new Label("Defect Name:");
+    	        TextField defectNameText = new TextField();
+
+    	        Label symptomsLabel = new Label("Defect Symptoms or Cause/Resolution");
+    	        TextField symptomsText = new TextField();
+    			
+    			//Action event for load data button
+    	        EventHandler<ActionEvent> loadEvent = new EventHandler<ActionEvent>() { 
+    	            public void handle(ActionEvent e) 
+    	            {
+    	            	
+    	            	try {
+    	        	      File defectFile = new File("defectLog.txt");
+    	        	      Scanner defectReader = new Scanner(defectFile);
+    	        	      String projectType = defectReader.nextLine();
+    	        	      projectType = defectReader.nextLine();
+    	        	      
+    	        	      //Set which project we are reading to
+    	        	      String currentProject = "Business";
+    	        	      
+    	        	      while (!projectType.equals("$$END READ$$")) 
+    	        	      {
+    	        	    	//Read in and set all of defect parameters
+    	        	    	String loadedName = defectReader.nextLine();
+    	        	    	String loadedStatus = defectReader.nextLine();
+    	        	    	boolean trueStatus;
+    	        	    	if (loadedStatus.equals("false"))
+    	        	    		trueStatus = false;
+    	        	    	else
+    	        	    		trueStatus = true;
+    	        	    	String loadedSymptoms = defectReader.nextLine();
+    	        	    	String loadedStepInject = defectReader.nextLine();
+    	        	    	String loadedStepRemove = defectReader.nextLine();
+    	        	    	String loadedDefectCategory = defectReader.nextLine();
+    	        	    	String loadedDefectFix = defectReader.nextLine();
+    	        	    	  
+    	        	    	//Determine which project we're reading to
+    	        	    	if (currentProject.equals("Business"))
+    	        	    	{
+    	            	    	//Create new defect object
+    	            	    	Defect newDefect = new Defect("Business Project",loadedName,trueStatus,loadedSymptoms,loadedStepInject,loadedStepRemove,loadedDefectCategory,loadedDefectFix);
+    	            	    	//Add these values to the system
+    	            	    	defectNumBusiness++;
+    	                    	projectDefectsBusiness.addAll(newDefect);
+    	                    	projectDefectsBusinessNames.addAll(loadedName);
+    	                    	//defectAmount.setText("There are " + Integer.toString(defectNumBusiness) + " defects in this project.");
+    	        	    	
+    	                    	//Update project combo
+    	            	    	projectCombo.setValue("Business Project");
+    	            	    	defectCombo.setItems(projectDefectsBusinessNames);
+    	                    	fixDefectCombo.setItems(projectDefectsBusinessNames);
+    	        	    	
+    	        	    	}
+    	        	    	else
+    	        	    	{
+    	        	    		//Create new defect object
+    	            	    	Defect newDefect = new Defect("Development Project",loadedName,trueStatus,loadedSymptoms,loadedStepInject,loadedStepRemove,loadedDefectCategory,loadedDefectFix);
+    	            	    	//Add these values to the system
+    	            	    	defectNumDevelopment++;
+    	                    	projectDefectsDevelopment.addAll(newDefect);
+    	                    	projectDefectsDevelopmentNames.addAll(loadedName);
+    	                    	//defectAmount.setText("There are " + Integer.toString(defectNumDevelopment) + " defects in this project.");
+    	        	    	
+    	    	        	       
+    	            	    	//Update project combo
+    	            	    	defectCombo.setItems(projectDefectsDevelopmentNames);
+    	                    	fixDefectCombo.setItems(projectDefectsDevelopmentNames);
+    	            	    	projectCombo.setValue("Development Project");
+    	        	    	}
+    	                	
+    	                	//Set these values into the current boxes and fields
+    	                	defectCombo.setValue(loadedName);
+    	                	name = loadedName;
+    	                	defectNameText.setText(loadedName);
+    	                	symptoms = loadedSymptoms;
+    	                	symptomsText.setText(loadedSymptoms);
+    	                	
+    	                	status = trueStatus;
+    	                	//if (trueStatus)
+    	                		//statusLabel.setText("Current Status: OPEN");
+    	                	//else
+    	                		//statusLabel.setText("Current Status: CLOSED");
+    	                	stepInjectCombo.setValue(loadedStepInject);
+    	                	stepInject = loadedStepInject;
+    	                	stepRemoveCombo.setValue(loadedStepRemove);
+    	                	stepRemove = loadedStepRemove;
+    	                	defectCategoryCombo.setValue(loadedDefectCategory);
+    	                	defectCategory = loadedDefectCategory;
+    	                	fixDefectCombo.setValue(loadedDefectFix);
+    	                	fixDefect = loadedDefectFix;
+    	        	    	
+    	                	projectType = defectReader.nextLine();
+    	                	if (projectType.equals("$$DEVELOPMENT PROJECT$$"))
+    	                	{
+    	                		currentProject = "Development";
+    	                		projectType = defectReader.nextLine();
+    	                	}
+    	                	
+    	        	      }
+    	        	      defectReader.close();
+    	        	    } 
+    	            	catch (FileNotFoundException err) {
+    	        	      err.printStackTrace();
+    	        	    }
+    	            }
+    	        };
+    	        loadButton.setOnAction(loadEvent);
+    	        
+    	       
+    	        
+    	        VBox root = new VBox(5);  
+    	        root.setPadding(new Insets(10,10,10,10));
+    	        root.setAlignment(Pos.TOP_CENTER);
+    	        primaryStage.setScene(new Scene(root, 600, 750));
+    	        primaryStage.setTitle("PlanningPokerSetup");  
+    	        
+    	        root.getChildren().addAll(projectCombo,defectCombo,statusButton,stepInjectCombo,stepRemoveCombo,defectCategoryCombo,fixDefectCombo,newDefectButton,updateDefectButton,deleteButton,saveButton,loadButton);
+    	        primaryStage.show();  
+    	});
+    	//================================================================================
     	StackPane root = new StackPane();
     	HBox mainlineHBox = new HBox();
     	mainlineHBox.setAlignment(Pos.CENTER);
     	Label mainlineHeader = new Label("mainline");
         mainlineHeader.setFont(Font.font("Arial", FontWeight.BOLD, 30));
-    	mainlineHBox.getChildren().addAll(effortLoggerConsoleBtn, defectLogConsoleBtn, effortLogEditorBtn);
+    	mainlineHBox.getChildren().addAll(effortLoggerConsoleBtn, defectLogConsoleBtn, effortLogEditorBtn, planningPokerBtn);
     	root.getChildren().addAll(mainlineHeader, mainlineHBox);
     	root.setAlignment(Pos.TOP_CENTER);
     	primaryStage.setScene(new Scene(root, 400, 400));
