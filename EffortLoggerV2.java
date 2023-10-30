@@ -4,7 +4,7 @@ package effortLoggerPackage;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.geometry.Pos;
-
+import javafx.scene.control.Alert;
 //import java.awt.Color;
 //import java.awt.Insets;
 import javafx.beans.value.ChangeListener;
@@ -13,8 +13,11 @@ import javafx.geometry.Insets;
 import javafx.scene.paint.Color;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -29,17 +32,21 @@ import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.Scanner;
 
+//import javax.smartcardio.Card;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
+import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -55,6 +62,106 @@ import javafx.util.Duration;
 
 
 public class EffortLoggerV2 extends Application {
+	
+	//BRANDON Declarations-----------------------------------
+	 private ObservableList<Project> projects = FXCollections.observableArrayList();
+	 private ListView<Project> projectListView;
+	 private HBox cardContainer;
+	 private Card selectedCard;
+	 
+	 private void generateEstimate() {
+	        Project selectedProject = projectListView.getSelectionModel().getSelectedItem();
+	        if (selectedProject == null) {
+	            new Alert(Alert.AlertType.WARNING, "No project selected").show();
+	            return;
+	        }
+	        int estimate = calculateEstimate(selectedProject);
+	        selectCardWithValue(estimate);
+	    }
+
+
+	    private int calculateEstimate(Project selectedProject) {
+	        return selectedProject.getStoryPoints();
+	    }
+	    
+	    private void selectCardWithValue(int value) {
+	        for (Node node : cardContainer.getChildren()) {
+	            if (node instanceof Card) {
+	                Card card = (Card) node;
+	                card.setSelected(card.getValue() == value);
+	            }
+	        }
+	    }
+
+	    private class Project {
+	        private String name;
+	        private int storyPoints;
+
+	        public Project(String name, int storyPoints) {
+	            this.name = name;
+	            this.storyPoints = storyPoints;
+	        }
+
+	        public int getStoryPoints() {
+	            return storyPoints;
+	        }
+
+	        @Override
+	        public String toString() {
+	            return name + " - " + storyPoints + " points";
+	        }
+	    }
+
+	    
+	    private void createCards() {
+	        for (int i = 0; i <= 100; i += 10) { 
+	            Card card = new Card(i);
+	            cardContainer.getChildren().add(card);
+	            card.setOnMouseClicked(e -> cardClicked(card));
+	        }
+	    }
+	    
+	    private void cardClicked(Card card) {
+	    	if(selectedCard != null) selectedCard.unhighlight();
+	    	card.highlight();
+	    	selectedCard = card;
+	        System.out.println("Card value: " + card.getValue());
+	    }
+	    
+	    private void loadDataFromCSV() {
+	        String csvFile = "data.csv";  
+	        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+	            String line;
+	            while ((line = br.readLine()) != null) {
+	                System.out.println("Read line: " + line);
+	                String[] parts = line.split(",");
+	                if (parts.length < 2) {
+	                    System.err.println("Skipping line due to insufficient parts: " + line);
+	                    continue;
+	                }
+	                String name = parts[0].trim().replaceAll("\"", "");
+	                int storyPoints;
+	                try {
+	                    storyPoints = Integer.parseInt(parts[1].trim().replaceAll("\"", ""));
+	                } catch (NumberFormatException e) {
+	                    System.err.println("Invalid story points value: " + parts[1]);
+	                    continue;
+	                }
+	                projects.add(new Project(name, storyPoints));
+	            }
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	        projectListView.refresh();
+	        System.out.println("Projects list size after loading: " + projects.size());
+	        if (!projects.isEmpty()) {
+	            System.out.println("First project: " + projects.get(0));
+	        }
+	    }
+
+	 //------------------------------------------------------
+	
+	
 	
 	//KEENAN Declarations------------------------------------
 	 private LinkedList<SaveData> LogList = new LinkedList<SaveData>();
@@ -185,6 +292,7 @@ public class EffortLoggerV2 extends Application {
     	Button defectLogConsoleBtn = new Button("Defect Log Console");
     	Button effortLogEditorBtn = new Button("Effort Log Editor");
     	Button planningPokerBtn = new Button("Planning Poker");
+    	Button planningPokerOtherBtn = new Button("Planning Poker Other");
     	
     	
     	effortLoggerConsoleBtn.setOnAction(mainlineEvent -> {
@@ -1384,12 +1492,34 @@ public class EffortLoggerV2 extends Application {
     	        primaryStage.show();  
     	});
     	//================================================================================
+    	planningPokerOtherBtn.setOnAction(mainlineEvent -> { 
+    		 projectListView = new ListView<>(projects);
+    	        projectListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+    	        Button loadButton = new Button("Load Data");
+    	        loadButton.setOnAction(e -> loadDataFromCSV());
+
+    	        Button generateEstimateButton = new Button("Generate Estimate");
+    	        generateEstimateButton.setOnAction(e -> generateEstimate());
+
+    	        VBox leftPanel = new VBox(loadButton, projectListView, generateEstimateButton);
+
+    	        cardContainer = new HBox();
+    	        createCards();
+
+    	        HBox root = new HBox(leftPanel, cardContainer);
+
+    	        Scene scene = new Scene(root, 800, 600);
+    	        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+    	        primaryStage.setScene(scene);
+    	        primaryStage.show();
+    	});
     	StackPane root = new StackPane();
     	HBox mainlineHBox = new HBox();
     	mainlineHBox.setAlignment(Pos.CENTER);
     	Label mainlineHeader = new Label("mainline");
         mainlineHeader.setFont(Font.font("Arial", FontWeight.BOLD, 30));
-    	mainlineHBox.getChildren().addAll(effortLoggerConsoleBtn, defectLogConsoleBtn, effortLogEditorBtn, planningPokerBtn);
+    	mainlineHBox.getChildren().addAll(effortLoggerConsoleBtn, defectLogConsoleBtn, effortLogEditorBtn, planningPokerBtn, planningPokerOtherBtn);
     	root.getChildren().addAll(mainlineHeader, mainlineHBox);
     	root.setAlignment(Pos.TOP_CENTER);
     	primaryStage.setScene(new Scene(root, 400, 400));
