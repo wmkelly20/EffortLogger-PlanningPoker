@@ -3,8 +3,6 @@
 
 package planningPokerSetup;
 
-
-
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -154,126 +152,157 @@ Flow:
 	
 	
 	@Override public void start(Stage primaryStage) {  
-		
-		//Label and box for naming a defect
-        Label attributeLabel = new Label("Define or update Current Defect attributes");
-        Label defectName = new Label("Defect Name:");
-        TextField defectNameText = new TextField();
-
-        Label symptomsLabel = new Label("Defect Symptoms or Cause/Resolution");
-        TextField symptomsText = new TextField();
+	
 		
 		//Action event for load data button
-        EventHandler<ActionEvent> loadEvent = new EventHandler<ActionEvent>() { 
-            public void handle(ActionEvent e) 
-            {
-            	
-            	try {
-        	      File defectFile = new File("defectLog.txt");
-        	      Scanner defectReader = new Scanner(defectFile);
-        	      String projectType = defectReader.nextLine();
-        	      projectType = defectReader.nextLine();
-        	      
-        	      //Set which project we are reading to
-        	      String currentProject = "Business";
-        	      
-        	      while (!projectType.equals("$$END READ$$")) 
-        	      {
-        	    	//Read in and set all of defect parameters
-        	    	String loadedName = defectReader.nextLine();
-        	    	String loadedStatus = defectReader.nextLine();
-        	    	boolean trueStatus;
-        	    	if (loadedStatus.equals("false"))
-        	    		trueStatus = false;
-        	    	else
-        	    		trueStatus = true;
-        	    	String loadedSymptoms = defectReader.nextLine();
-        	    	String loadedStepInject = defectReader.nextLine();
-        	    	String loadedStepRemove = defectReader.nextLine();
-        	    	String loadedDefectCategory = defectReader.nextLine();
-        	    	String loadedDefectFix = defectReader.nextLine();
-        	    	  
-        	    	//Determine which project we're reading to
-        	    	if (currentProject.equals("Business"))
-        	    	{
-            	    	//Create new defect object
-            	    	Defect newDefect = new Defect("Business Project",loadedName,trueStatus,loadedSymptoms,loadedStepInject,loadedStepRemove,loadedDefectCategory,loadedDefectFix);
-            	    	//Add these values to the system
-            	    	defectNumBusiness++;
-                    	projectDefectsBusiness.addAll(newDefect);
-                    	projectDefectsBusinessNames.addAll(loadedName);
-                    	//defectAmount.setText("There are " + Integer.toString(defectNumBusiness) + " defects in this project.");
-        	    	
-                    	//Update project combo
-            	    	projectCombo.setValue("Business Project");
-            	    	defectCombo.setItems(projectDefectsBusinessNames);
-                    	fixDefectCombo.setItems(projectDefectsBusinessNames);
-        	    	
-        	    	}
-        	    	else
-        	    	{
-        	    		//Create new defect object
-            	    	Defect newDefect = new Defect("Development Project",loadedName,trueStatus,loadedSymptoms,loadedStepInject,loadedStepRemove,loadedDefectCategory,loadedDefectFix);
-            	    	//Add these values to the system
-            	    	defectNumDevelopment++;
-                    	projectDefectsDevelopment.addAll(newDefect);
-                    	projectDefectsDevelopmentNames.addAll(loadedName);
-                    	//defectAmount.setText("There are " + Integer.toString(defectNumDevelopment) + " defects in this project.");
-        	    	
-    	        	       
-            	    	//Update project combo
-            	    	defectCombo.setItems(projectDefectsDevelopmentNames);
-                    	fixDefectCombo.setItems(projectDefectsDevelopmentNames);
-            	    	projectCombo.setValue("Development Project");
-        	    	}
-                	
-                	//Set these values into the current boxes and fields
-                	defectCombo.setValue(loadedName);
-                	name = loadedName;
-                	defectNameText.setText(loadedName);
-                	symptoms = loadedSymptoms;
-                	symptomsText.setText(loadedSymptoms);
-                	
-                	status = trueStatus;
-                	//if (trueStatus)
-                		//statusLabel.setText("Current Status: OPEN");
-                	//else
-                		//statusLabel.setText("Current Status: CLOSED");
-                	stepInjectCombo.setValue(loadedStepInject);
-                	stepInject = loadedStepInject;
-                	stepRemoveCombo.setValue(loadedStepRemove);
-                	stepRemove = loadedStepRemove;
-                	defectCategoryCombo.setValue(loadedDefectCategory);
-                	defectCategory = loadedDefectCategory;
-                	fixDefectCombo.setValue(loadedDefectFix);
-                	fixDefect = loadedDefectFix;
-        	    	
-                	projectType = defectReader.nextLine();
-                	if (projectType.equals("$$DEVELOPMENT PROJECT$$"))
-                	{
-                		currentProject = "Development";
-                		projectType = defectReader.nextLine();
-                	}
-                	
-        	      }
-        	      defectReader.close();
-        	    } 
-            	catch (FileNotFoundException err) {
-        	      err.printStackTrace();
+        EventHandler<ActionEvent> loadEvent = new EventHandler<ActionEvent>() 
+        { 
+        public void handle(ActionEvent e) 
+            {	
+            try {            	
+            	File defectFile = new File("defectLog.txt");
+        	    //check for contents
+        	    if(defectFile.length()==0) {
+        	    	  System.out.println("File is empty");
         	    }
-            }
+        	    else 
+        	    {
+	        	      Scanner defectReader = new Scanner(defectFile);
+	        	      String projectType = defectReader.nextLine();
+	        	      projectType = defectReader.nextLine();
+	        	      
+	        	      //Set which project we are reading to
+	        	      String currentProject = "Business";
+	        	      
+	        	      while (!projectType.equals("$$END READ$$")) 
+	        	      {
+	        	    	//Read in and set all of defect parameters
+	        	    	String loadedName = defectReader.nextLine();
+	        	    	String loadedStatus = defectReader.nextLine();
+	        	    	boolean trueStatus;
+	        	    	if (loadedStatus.equals("false"))
+	        	    		trueStatus = false;
+	        	    	else
+	        	    		trueStatus = true;
+	        	    	String loadedSymptoms = defectReader.nextLine();
+	        	    	String loadedStepInject = defectReader.nextLine();
+	        	    	String loadedStepRemove = defectReader.nextLine();
+	        	    	String loadedDefectCategory = defectReader.nextLine();
+	        	    	String loadedDefectFix = defectReader.nextLine();
+	        	    	  
+	        	    	//Determine which project we're reading to
+	        	    	if (currentProject.equals("Business"))
+	        	    	{
+	            	    	//Create new defect object
+	            	    	Defect newDefect = new Defect("Business Project",loadedName,trueStatus,loadedSymptoms,loadedStepInject,loadedStepRemove,loadedDefectCategory,loadedDefectFix);
+	            	    	//Add these values to the system
+	            	    	defectNumBusiness++;
+	                    	projectDefectsBusiness.addAll(newDefect);
+	                    	projectDefectsBusinessNames.addAll(loadedName);
+	                    	//defectAmount.setText("There are " + Integer.toString(defectNumBusiness) + " defects in this project.");
+	        	    	
+	                    	//Update project combo
+	            	    	projectCombo.setValue("Business Project");
+	            	    	defectCombo.setItems(projectDefectsBusinessNames);
+	                    	fixDefectCombo.setItems(projectDefectsBusinessNames);
+	        	    	
+	        	    	}
+	        	    	else
+	        	    	{
+	        	    		//Create new defect object
+	            	    	Defect newDefect = new Defect("Development Project",loadedName,trueStatus,loadedSymptoms,loadedStepInject,loadedStepRemove,loadedDefectCategory,loadedDefectFix);
+	            	    	//Add these values to the system
+	            	    	defectNumDevelopment++;
+	                    	projectDefectsDevelopment.addAll(newDefect);
+	                    	projectDefectsDevelopmentNames.addAll(loadedName);
+	                    	//defectAmount.setText("There are " + Integer.toString(defectNumDevelopment) + " defects in this project.");
+	        	    	
+	    	        	       
+	            	    	//Update project combo
+	            	    	defectCombo.setItems(projectDefectsDevelopmentNames);
+	                    	fixDefectCombo.setItems(projectDefectsDevelopmentNames);
+	            	    	projectCombo.setValue("Development Project");
+	        	    	}
+	                	
+	                	//Set these values into the current boxes and fields
+	                	defectCombo.setValue(loadedName);
+	                	name = loadedName;
+	                	//to do: fix this later defectNameText.setText(loadedName);
+	                	symptoms = loadedSymptoms;
+	                	//symptomsText.setText(loadedSymptoms);
+	                	
+	                	status = trueStatus;
+	                	//if (trueStatus)
+	                		//statusLabel.setText("Current Status: OPEN");
+	                	//else
+	                		//statusLabel.setText("Current Status: CLOSED");
+	                	stepInjectCombo.setValue(loadedStepInject);
+	                	stepInject = loadedStepInject;
+	                	stepRemoveCombo.setValue(loadedStepRemove);
+	                	stepRemove = loadedStepRemove;
+	                	defectCategoryCombo.setValue(loadedDefectCategory);
+	                	defectCategory = loadedDefectCategory;
+	                	fixDefectCombo.setValue(loadedDefectFix);
+	                	fixDefect = loadedDefectFix;
+	        	    	
+	                	projectType = defectReader.nextLine();
+	                	if (projectType.equals("$$DEVELOPMENT PROJECT$$"))
+	                	{
+	                		currentProject = "Development";
+	                		projectType = defectReader.nextLine();
+	                	}
+	                	
+	        	      }
+	        	      defectReader.close();
+	        	    } 
+        	      	} 
+	            	catch (FileNotFoundException err) {
+	        	      err.printStackTrace();
+	        	    }
+            	}
+            
         };
         loadButton.setOnAction(loadEvent);
+                
+        Label defectName = new Label("Story:");
+        TextField defectNameText = new TextField();
+        //Listener for the defectNameBox. When the string within the field has changed
+        //It will update the name variable within the name variable which is later stored in observable list
+        //Input must be string
+        defectNameText.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                name=newValue;
+                
+            }
+        });
         
+        Label symptomsLabel = new Label("Description:");
+        TextField symptomsText = new TextField();
+        //This is the textfield for the symptoms. It works functionally the same as the name textfield
+        symptomsText.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                symptoms=newValue;
+                
+            }
+        });
        
+        Label titleLabel = new Label("Planning Poker:");
+        titleLabel.setFont(new Font("Arial", 24));
         
-        VBox root = new VBox(5);  
-        root.setPadding(new Insets(10,10,10,10));
-        root.setAlignment(Pos.TOP_CENTER);
-        primaryStage.setScene(new Scene(root, 600, 750));
-        primaryStage.setTitle("PlanningPokerSetup");  
+        Label descLabel = new Label("Please enter your user story below.");
         
-        root.getChildren().addAll(projectCombo,defectCombo,statusButton,stepInjectCombo,stepRemoveCombo,defectCategoryCombo,fixDefectCombo,newDefectButton,updateDefectButton,deleteButton,saveButton,loadButton);
+        
+        VBox userInput = new VBox(5);          
+        userInput.setPadding(new Insets(10,10,10,10));
+        userInput.setSpacing(10);
+        userInput.setAlignment(Pos.TOP_CENTER);
+        primaryStage.setScene(new Scene(userInput, 600, 750));
+        primaryStage.setTitle("Planning Poker Setup");  
+        
+        
+        userInput.getChildren().addAll(titleLabel,descLabel,defectName,defectNameText,symptomsLabel,symptomsText,loadButton);
         primaryStage.show();  
 
 	}
