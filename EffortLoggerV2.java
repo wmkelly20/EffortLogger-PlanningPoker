@@ -294,7 +294,7 @@ public class EffortLoggerV2 extends Application {
     	Button planningPokerBtn = new Button("Planning Poker");
     	Button planningPokerOtherBtn = new Button("Planning Poker Other");
     	
-    	
+    	//CALEB Code================================================================
     	effortLoggerConsoleBtn.setOnAction(mainlineEvent -> {
     	Stage secondaryStage = new Stage();
 
@@ -441,17 +441,17 @@ public class EffortLoggerV2 extends Application {
             try {
                 // Create a new file (or overwrite an existing file)
                 File file = new File("output.txt");
-                writer = new PrintWriter(file);
+                writer = new PrintWriter(new FileWriter(file, true));
 
                 // Writes log data to text file
                 writer.println("Date: " + currentDate
-                		+ "\nTime: " + currentTime
-                		+ "\nTime Elapsed: " + minutesElapsed
-                		+ "\nProject: " + projectSelected
-                		+ "\nLife Cycle Step: " + lifeCycleSelected
-                		+ "\nEffort Category: " + effortSelected
-                		+ ", " + subEffortSelected);
-            } catch (FileNotFoundException e) {
+                		+ "|" + currentTime
+                		+ "|" + minutesElapsed + " minutes"
+                		+ "|" + projectSelected
+                		+ "|" + lifeCycleSelected
+                		+ "|" + effortSelected
+                		+ ", " + subEffortSelected + "|\n");
+            } catch (IOException e) {
                 System.err.println("Error: Could not create or write to file.");
                 e.printStackTrace();
             } finally {
@@ -489,6 +489,7 @@ public class EffortLoggerV2 extends Application {
         //primaryStage.setScene(new Scene(vbox, 600, 600));
         //primaryStage.show();
     	});
+    	//========================================================================================
     	
     	//DYLAN Code==============================================================================
     	defectLogConsoleBtn.setOnAction(mainlineEvent -> {
@@ -1492,6 +1493,8 @@ public class EffortLoggerV2 extends Application {
     	        primaryStage.show();  
     	});
     	//================================================================================
+    	
+    	//BRANDON Code====================================================================
     	planningPokerOtherBtn.setOnAction(mainlineEvent -> { 
     		 projectListView = new ListView<>(projects);
     	        projectListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
@@ -1514,6 +1517,7 @@ public class EffortLoggerV2 extends Application {
     	        primaryStage.setScene(scene);
     	        primaryStage.show();
     	});
+    	//================================================================================
     	StackPane root = new StackPane();
     	HBox mainlineHBox = new HBox();
     	mainlineHBox.setAlignment(Pos.CENTER);
@@ -1522,7 +1526,7 @@ public class EffortLoggerV2 extends Application {
     	mainlineHBox.getChildren().addAll(effortLoggerConsoleBtn, defectLogConsoleBtn, effortLogEditorBtn, planningPokerBtn, planningPokerOtherBtn);
     	root.getChildren().addAll(mainlineHeader, mainlineHBox);
     	root.setAlignment(Pos.TOP_CENTER);
-    	primaryStage.setScene(new Scene(root, 400, 400));
+    	primaryStage.setScene(new Scene(root, 600, 600));
     	primaryStage.show();
     	
     	
