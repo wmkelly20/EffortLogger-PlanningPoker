@@ -7,22 +7,23 @@ public class SaveData {
 
 	private int logNumber;
 	private String date;
-	private double startTime; //need to talk to caleb
-	private double endTime; //need to talk to caleb
-	private double deltaTime; //need to talk to caleb
+	private String startTime; //need to talk to caleb
+	private String endTime; //need to talk to caleb
+	private String deltaTime; //need to talk to caleb
 	private String lifeCycleStep;
 	private String effortCategory;
 	private String plan;
 	private String project;
 	
-	public SaveData (int logNumber, String date, double startTime, double endTime, double deltaTime, String lifeCycleStep, String effortCategory, String plan, String project) {
+	public SaveData (int logNumber, String date, String endTime, String deltaTime, String lifeCycleStep, String effortCategory, String project) {
 		this.logNumber = logNumber;
 		this.date = date;
-		this.startTime = startTime;
+		//this.startTime = startTime;
 		this.endTime = endTime;
 		this.deltaTime = deltaTime;
 		this.lifeCycleStep = lifeCycleStep;
 		this.effortCategory = effortCategory;
+		this.project = project;
 		this.plan = plan;
 	}
 	
@@ -44,60 +45,64 @@ public class SaveData {
 		return date;
 	}
 
-	public void setDate(String date) {
-		this.date = date;
+	public void setDate(String date2) {
+		this.date = date2;
 	}
 
-	public double getStartTime() {
+	public String getStartTime() {
 		return startTime;
 	}
 
-	public void setStartTime(double startTime) {
+	public void setStartTime(String startTime) {
 		this.startTime = startTime;
 	}
 
-	public double getEndTime() {
+	public String getEndTime() {
 		return endTime;
 	}
 
-	public void setEndTime(double endTime) {
-		this.endTime = endTime;
+	public void setEndTime(String endTime2) {
+		this.endTime = endTime2;
 	}
 
-	public double getDeltaTime() {
+	public String getDeltaTime() {
 		return deltaTime;
 	}
 
-	public void setDeltaTime(double deltaTime) {
-		this.deltaTime = deltaTime;
+	public void setDeltaTime(String deltaTime2) {
+		this.deltaTime = deltaTime2;
 	}
 
 	public String getLifeCycleStep() {
 		return lifeCycleStep;
 	}
 
-	public void setLifeCycleStep(String lifeCycleStep) {
-		this.lifeCycleStep = lifeCycleStep;
+	public void setLifeCycleStep(String lifeCycleStep2) {
+		this.lifeCycleStep = lifeCycleStep2;
 	}
 
 	public String getEffortCategory() {
 		return effortCategory;
 	}
 
-	public void setEffortCategory(String effortCategory) {
-		this.effortCategory = effortCategory;
+	public void setEffortCategory(String effortCategory2) {
+		this.effortCategory = effortCategory2;
 	}
 
 	public String getPlan() {
 		return plan;
 	}
 
-	public void setPlan(String plan) {
-		this.plan = plan;
+	public void setPlan(String plan2) {
+		this.plan = plan2;
 	}
 	
 	public String getProject() {
 		return project;
+	}
+	
+	public void setProject(String project2) {
+		this.project = project2;
 	}
 	
 	

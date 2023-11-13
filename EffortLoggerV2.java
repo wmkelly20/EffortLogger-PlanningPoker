@@ -29,6 +29,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Scanner;
 
@@ -165,11 +166,77 @@ public class EffortLoggerV2 extends Application {
 	
 	//KEENAN Declarations------------------------------------
 	 private LinkedList<SaveData> LogList = new LinkedList<SaveData>();
-	 private int logNumber = 0;
+	 private int logNumber = 1;
 	 private String date = "Date";
 	 private double startTime = 0; //need to talk to caleb
 	 private double endTime = 0; //need to talk to caleb
 	 private double deltaTime = 0; //need to talk to caleb
+	 private int logNumberofSelection = -1;
+	 
+	 private void ReadLogs() {
+		 LogList.clear();
+		 logNumber = 1;
+		 System.out.println("Entered Read Logs");
+		 try {
+			 BufferedReader reader = new BufferedReader(new FileReader("output.txt"));
+			 String line;
+			 //System.out.println("opened file");
+			 while((line=reader.readLine()) != null ){
+				 //System.out.println("On next Line");
+				 String[] values = line.split("\\|");
+				 //System.out.println(values[1] + values[2] + values[3] + "argcount: " + values.length);
+				//0 is date, 1 is endtime, 2 is deltatime, 3 is project, 4 is life cycle step, 5 is effort cat
+				 SaveData temp = new SaveData(logNumber, values[0], values[1], values[2], values[4], values[5], values[3]);
+				 //System.out.println("SaveData object made");
+				 LogList.add(temp);
+				 //System.out.println("Reading Logs");
+				 reader.readLine();
+				 logNumber++;
+				 //int logNumber, String date, String endTime, String deltaTime, String lifeCycleStep, String effortCategory, String project
+			 }
+			 
+			 /*
+			 for(SaveData temp: LogList) {
+				 System.out.println("Loglist: " + temp);
+			 }
+			 System.out.println(LogList.size());
+			 */
+			 reader.close();
+		 }catch(Exception e) {
+			 
+		 }
+	 }
+	 
+	 private void PrintLogs() {
+		 
+		FileWriter fileWriter;
+     	try {
+				fileWriter = new FileWriter("output.txt");
+				PrintWriter printWriter = new PrintWriter(fileWriter);
+       	    //printWriter.printf("|" + logNumber + "|" + date + "|" + startTime + "|" + endTime + "|" + deltaTime + "|" + lifeCycleText.getText() + "|" + effortCatText.getText() + "|" + planText.getText() + "|");	
+				for(SaveData element : LogList) {
+					printWriter.print(element.getDate() + "|" + element.getEndTime() + "|" + element.getDeltaTime() + "|" + element.getProject() + "|" + element.getLifeCycleStep() + "|" + element.getEffortCategory() + "|\n\n");
+				}
+       	    printWriter.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				System.out.println("Error In Printing");
+			}
+		 
+	 }
+	 
+	 private void ResetBox(ComboBox<String> comboBox, int index) {
+		 //comboBox.getItems().clear();
+		 //comboBox.setItems(FXCollections.observableArrayList());
+		 comboBox.getItems().add("----------");
+	        for(SaveData element: LogList) {
+	        	
+	        	comboBox.getItems().add(element.getLogNumber() + ":" + element.getDate() + "(" + element.getEndTime() + ") "
+	        			+ element.getLifeCycleStep() + "; " + element.getEffortCategory() + ";");
+	        	
+	        }
+	        comboBox.setValue("----------");
+	 }
 	 //------------------------------------------------------
 	
 	
@@ -1021,6 +1088,9 @@ public class EffortLoggerV2 extends Application {
     	
     	//KEENAN CODE==========================================================================================
     	effortLogEditorBtn.setOnAction(mainlineEvent -> {
+    		ReadLogs();
+    		//PrintLogs();
+    		/*
     		 // Create a button
 	        Button start = new Button("Start an Activity");
 	        Button stop = new Button("Stop this Activity");
@@ -1073,9 +1143,9 @@ public class EffortLoggerV2 extends Application {
 	        GridPane.setColumnIndex(stop, 2);
 	        GridPane.setRowIndex(edit, 12);
 	        GridPane.setColumnIndex(edit, 2);
-	        
+	        */
 	        //grid 2 stuff
-	        Button backToLogs = new Button("Back To Log Console");
+	        Button backToLogs = new Button("Back To Main");
 	        Button clearLogs = new Button("Clear This Effort Log");
 	        Button deleteLog = new Button("Delete This Entry");
 	        Button updateLog = new Button("Update this entry");
@@ -1086,6 +1156,16 @@ public class EffortLoggerV2 extends Application {
 	        deleteLog.setStyle("-fx-font-size: 10px");
 	        updateLog.setStyle("-fx-font-size: 10px");
 	        splitLog.setStyle("-fx-font-size: 10px");
+	        
+	        ComboBox<String> comboBox = new ComboBox<>();
+	        comboBox.getItems().add("----------");
+	        for(SaveData element: LogList) {
+	        	
+	        	comboBox.getItems().add(element.getLogNumber() + ":" + element.getDate() + "(" + element.getEndTime() + ") "
+	        			+ element.getLifeCycleStep() + "; " + element.getEffortCategory() + ";");
+	        	
+	        }
+	        comboBox.setValue("----------");
 	        
 	        
 	        TextField projectEditText = new TextField("Business Project");
@@ -1111,10 +1191,10 @@ public class EffortLoggerV2 extends Application {
 	        
 	        
 	        GridPane grid2 = new GridPane();
-	        grid2.getChildren().addAll(clearLogs, projectEditText, projectEditLabel, numberToChangeLabel, numberToChangeText, modifyAttLabel,
-	        		dateEditLabel, dateText, startTimeEditLabel, startTimeText, stopTimeEditLabel,
+	        grid2.getChildren().addAll(clearLogs, projectEditText, projectEditLabel, numberToChangeLabel, comboBox, modifyAttLabel,
+	        		dateEditLabel, dateText, stopTimeEditLabel,
 	        		stopTimeText, lifeCycleStepEditLabel, lifeCycEditText, effortCatEditLabel,
-	        		effortCatEditText, updateLog, deleteLog, splitLog, backToLogs, loadData);
+	        		effortCatEditText, updateLog, deleteLog, splitLog, backToLogs);
 	        
 	        GridPane.setColumnIndex(projectEditText, 4);
 	        GridPane.setRowIndex(projectEditText, 1);
@@ -1124,18 +1204,20 @@ public class EffortLoggerV2 extends Application {
 	        GridPane.setRowIndex(projectEditLabel, 0);
 	        GridPane.setColumnIndex(numberToChangeLabel, 4);
 	        GridPane.setRowIndex(numberToChangeLabel, 5);
-	        GridPane.setColumnIndex(numberToChangeText, 4);
-	        GridPane.setRowIndex(numberToChangeText, 6);
+	        //GridPane.setColumnIndex(numberToChangeText, 4);
+	        GridPane.setRowIndex(comboBox, 6);
+	        GridPane.setColumnIndex(comboBox, 4);
+	        //GridPane.setRowIndex(numberToChangeText, 6);
 	        GridPane.setColumnIndex(modifyAttLabel, 4);
 	        GridPane.setRowIndex(modifyAttLabel, 7);
 	        GridPane.setColumnIndex(dateEditLabel, 4);
 	        GridPane.setRowIndex(dateEditLabel, 8);
 	        GridPane.setColumnIndex(dateText, 4);
 	        GridPane.setRowIndex(dateText, 9);
-	        GridPane.setColumnIndex(startTimeEditLabel, 4);
-	        GridPane.setRowIndex(startTimeEditLabel, 10);
-	        GridPane.setColumnIndex(startTimeText, 4);
-	        GridPane.setRowIndex(startTimeText, 11);
+	        //GridPane.setColumnIndex(startTimeEditLabel, 4);
+	        //GridPane.setRowIndex(startTimeEditLabel, 10);
+	        //GridPane.setColumnIndex(startTimeText, 4);
+	        //GridPane.setRowIndex(startTimeText, 11);
 	        GridPane.setColumnIndex(stopTimeEditLabel, 4);
 	        GridPane.setRowIndex(stopTimeEditLabel, 12);
 	        GridPane.setColumnIndex(stopTimeText, 4);
@@ -1156,23 +1238,24 @@ public class EffortLoggerV2 extends Application {
 	        GridPane.setRowIndex(splitLog, 20);
 	        GridPane.setColumnIndex(backToLogs, 4);
 	        GridPane.setRowIndex(backToLogs, 21);
-	        GridPane.setColumnIndex(loadData, 10);
-	        GridPane.setRowIndex(loadData, 6);
+	        //GridPane.setColumnIndex(loadData, 10);
+	        //GridPane.setRowIndex(loadData, 6);
 	        
-	        
+	        Stage editStage = new Stage();
 	        
 
 	        // Create the scene
-	        Scene logScene = new Scene(grid, 400, 500);
+	        //Scene logScene = new Scene(grid, 400, 500);
 	        Scene editScene = new Scene(grid2, 700, 500);
 
 	        // Set the stage's title
-	        primaryStage.setTitle("Effort Console");
+	        editStage.setTitle("Edit Console");
 
 	        // Set the scene for the stage
-	        primaryStage.setScene(logScene);
+	        editStage.setScene(editScene);
 
 	        // Set an action for the button
+	        /*
 	        start.setOnAction(event -> {
 	        	//System.out.println(LogList);
 	        	
@@ -1216,18 +1299,46 @@ public class EffortLoggerV2 extends Application {
 	        	primaryStage.setTitle("Edit Console");
 	        });
 
+	        */
+	        comboBox.setOnAction(event -> {
+	        	String selectedValue = comboBox.getValue();
+	        	Scanner tempScan = new Scanner(selectedValue);
+	        	try {
+	        	logNumberofSelection = tempScan.useDelimiter("\\D+").nextInt();
+	        	}catch(Exception e){
+	        		
+	        	}
+	        	
+	        	for(SaveData element : LogList) {
+	        		if (element.getLogNumber() == logNumberofSelection) {
+	        			dateText.setText(element.getDate());
+	        			System.out.println(dateText.getText());
+	        			//startTimeText.setText(Double.toString(element.getStartTime()));
+	        			stopTimeText.setText(element.getEndTime());
+	        			lifeCycEditText.setText(element.getLifeCycleStep());
+	        			effortCatEditText.setText(element.getEffortCategory());
+	        		}
+	        	}
+	        	//int selectedLogNum = extractFirstInteger(selectedValue);
+	        	System.out.println(logNumberofSelection);
+	        	tempScan.close();
+	        	System.out.println(LogList.size());
+	        });
 	        
 	        backToLogs.setOnAction(event -> {
-	        	primaryStage.setScene(logScene);
-	        	primaryStage.setTitle("Effort Console");
+	        	//primaryStage.setScene(logScene);
+	        	//primaryStage.setTitle("Effort Console");
+	        	//System.out.println(dateText.getText());
+	        	editStage.close();
+	        	
 	        });
 	        
 	        loadData.setOnAction(event -> {
 	        	for(SaveData element : LogList) {
 	        		if (element.getLogNumber() == Integer.parseInt(numberToChangeText.getText())) {
 	        			dateText.setText(element.getDate());
-	        			startTimeText.setText(Double.toString(element.getStartTime()));
-	        			stopTimeText.setText(Double.toString(element.getEndTime()));
+	        			//startTimeText.setText(Double.toString(element.getStartTime()));
+	        			//stopTimeText.setText(Double.toString(element.getEndTime()));
 	        			lifeCycEditText.setText(element.getLifeCycleStep());
 	        			effortCatEditText.setText(element.getEffortCategory());
 	        		}
@@ -1238,7 +1349,7 @@ public class EffortLoggerV2 extends Application {
 	        	LogList.clear();
 	        	FileWriter fileWriter;
 	        	try {
-					fileWriter = new FileWriter("Logs.txt");
+					fileWriter = new FileWriter("output.txt");
 					PrintWriter printWriter = new PrintWriter(fileWriter);
 	          	    
 	          	    printWriter.close();
@@ -1246,14 +1357,21 @@ public class EffortLoggerV2 extends Application {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+	        	//ReadLogs();
+	        	//ResetBox(comboBox, 0);
+	        	logNumber = 1;
+	        	editStage.close();
 	        });
 	        
 	        deleteLog.setOnAction(event -> {
-	        	for(SaveData element : LogList) {
-	        		if(element.getLogNumber() == Integer.parseInt(numberToChangeText.getText())) {
+	        	
+	        	for(SaveData element: LogList) {
+	        		if(element.getLogNumber() == logNumberofSelection) {
 	        			LogList.remove(element.getLogNumber()-1);
+	        			break;
 	        		}
 	        	}
+	        	
 	        	
 	        	int i = 1;
 	        	
@@ -1265,53 +1383,69 @@ public class EffortLoggerV2 extends Application {
 	        		i += 1;
 	        	}
 	        	
+	        	logNumber -= 1;
+	        	
 	        	dateText.setText("");
     			startTimeText.setText("");
     			stopTimeText.setText("");
     			lifeCycEditText.setText("");
     			effortCatEditText.setText("");
 	        	
-	        	FileWriter fileWriter;
+    			FileWriter fileWriter;
 	        	try {
-					fileWriter = new FileWriter("Logs.txt");
+					fileWriter = new FileWriter("output.txt");
 					PrintWriter printWriter = new PrintWriter(fileWriter);
-	          	    //printWriter.printf("|" + logNumber + "|" + date + "|" + startTime + "|" + endTime + "|" + deltaTime + "|" + lifeCycleText.getText() + "|" + effortCatText.getText() + "|" + planText.getText() + "|");	
-					for(SaveData element : LogList) {
-						printWriter.print("|" + element.getLogNumber() + "|" + element.getDate() + "|" + element.getStartTime() + "|" + element.getEndTime() + "|" + element.getDeltaTime() + "|" + element.getLifeCycleStep() + "|" + element.getEffortCategory() + "|" + element.getPlan() + "|\n");
-					}
+	          	    
 	          	    printWriter.close();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+	        	PrintLogs();
 	        	
+	        	editStage.close();
+	        	
+	        	//ReadLogs();
+	        	//ResetBox(comboBox);
+	        	//comboBox.getItems().removeAll(comboBox.getValue());
+	        	//comboBox.setValue("----------");
+	        	//comboBox.setItems(FXCollections.observableArrayList());
+	        	//ResetBox(comboBox);
 	        	
 	        });
 	        
 	        updateLog.setOnAction(event ->{
+	        	//System.out.println(dateText.getText());
+	        	String newDate = dateText.getText();
+	        	String newEndTime = stopTimeText.getText();
+	        	String newLifeCycleStep = lifeCycEditText.getText();
+	        	String newEffortCat = effortCatEditText.getText();
 	        	for(SaveData element : LogList) {
-	        		if(element.getLogNumber() == Integer.parseInt(numberToChangeText.getText())) {
-	        			element.setDate(dateText.getText());
-	        			element.setStartTime(Double.parseDouble(startTimeText.getText()));
-	        			element.setEndTime(Double.parseDouble(stopTimeText.getText()));
-	        			element.setDeltaTime(element.getEndTime()- element.getStartTime());
-	        			element.setLifeCycleStep(lifeCycEditText.getText());
-	        			element.setEffortCategory(effortCatEditText.getText());
+	        		if(element.getLogNumber() == logNumberofSelection) {
+	        			//System.out.println("In Log Edit");
+	        			//System.out.println(element.getLogNumber());
+	        			//System.out.println(dateText.getText());
+	        			element.setDate(newDate);
+	        			//element.setStartTime(Double.parseDouble(startTimeText.getText()));
+	        			element.setEndTime(newEndTime);
+	        			//element.setDeltaTime(element.getEndTime()- element.getStartTime());
+	        			element.setLifeCycleStep(newLifeCycleStep);
+	        			element.setEffortCategory(newEffortCat);
 	        		}
 	        		
 	        		FileWriter fileWriter;
 		        	try {
-						fileWriter = new FileWriter("Logs.txt");
+						fileWriter = new FileWriter("output.txt");
 						PrintWriter printWriter = new PrintWriter(fileWriter);
-		          	    //printWriter.printf("|" + logNumber + "|" + date + "|" + startTime + "|" + endTime + "|" + deltaTime + "|" + lifeCycleText.getText() + "|" + effortCatText.getText() + "|" + planText.getText() + "|");	
-						for(SaveData element2 : LogList) {
-							printWriter.print("|" + element2.getLogNumber() + "|" + element2.getDate() + "|" + element2.getStartTime() + "|" + element2.getEndTime() + "|" + element2.getDeltaTime() + "|" + element2.getLifeCycleStep() + "|" + element2.getEffortCategory() + "|" + element2.getPlan() + "|\n");
-						}
+		          	    
 		          	    printWriter.close();
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+		        	PrintLogs();
+		        	
+		        	editStage.close();
 		        	
 		        	dateText.setText("");
 	    			startTimeText.setText("");
@@ -1326,9 +1460,10 @@ public class EffortLoggerV2 extends Application {
 	        
 	        splitLog.setOnAction(event ->{
 	        	for(SaveData element : LogList) {
-	        		if(element.getLogNumber() == Integer.parseInt(numberToChangeText.getText())) {
-	        			SaveData newElement = new SaveData(element.getLogNumber(), element.getDate(), element.getStartTime(), element.getEndTime(), element.getDeltaTime(), element.getLifeCycleStep(), element.getEffortCategory(), element.getPlan(), element.getProject());
+	        		if(element.getLogNumber() == logNumberofSelection) {
+	        			SaveData newElement = new SaveData(element.getLogNumber(), element.getDate(), element.getEndTime(), element.getDeltaTime(), element.getLifeCycleStep(), element.getEffortCategory(), element.getProject());
 	        			LogList.add(element.getLogNumber(), newElement);
+	        			//int logNumber, String date, String endTime, String deltaTime, String lifeCycleStep, String effortCategory, String project
 	        			break;
 	        		}
 	        	}
@@ -1342,6 +1477,8 @@ public class EffortLoggerV2 extends Application {
 	        		i += 1;
 	        	}
 	        	
+	        	logNumber += 1;
+	        	
 	        	numberToChangeText.setText("");
 	        	dateText.setText("");
     			startTimeText.setText("");
@@ -1349,24 +1486,28 @@ public class EffortLoggerV2 extends Application {
     			lifeCycEditText.setText("");
     			effortCatEditText.setText("");
 	        	
-	        	FileWriter fileWriter;
+    			FileWriter fileWriter;
 	        	try {
-					fileWriter = new FileWriter("Logs.txt");
+					fileWriter = new FileWriter("output.txt");
 					PrintWriter printWriter = new PrintWriter(fileWriter);
-	          	    //printWriter.printf("|" + logNumber + "|" + date + "|" + startTime + "|" + endTime + "|" + deltaTime + "|" + lifeCycleText.getText() + "|" + effortCatText.getText() + "|" + planText.getText() + "|");	
-					for(SaveData element : LogList) {
-						printWriter.print("|" + element.getLogNumber() + "|" + element.getDate() + "|" + element.getStartTime() + "|" + element.getEndTime() + "|" + element.getDeltaTime() + "|" + element.getLifeCycleStep() + "|" + element.getEffortCategory() + "|" + element.getPlan() + "|\n");
-					}
+	          	    
 	          	    printWriter.close();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+	        	PrintLogs();
+	        	
+	        	editStage.close();
 	        	
 	        });
 	        // Show the stage
-	        primaryStage.show();
+	        editStage.show();
+	        
+	        
     	});
+    	
+    	
     	//====================================================================================
     	
     	//WILSON CODE=========================================================================
@@ -1531,6 +1672,10 @@ public class EffortLoggerV2 extends Application {
     	
     	
     }
+    
+    
+    
+    
 }
 
  
